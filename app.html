@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>VetSync — Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --verde:#1B5E20;--verde-m:#2E7D32;--verde-l:#43A047;
+  --verde-cl:#E8F5E9;--verde-md:#C8E6C9;
+  --amarelo:#F9A825;--cinza:#546E7A;--cinza-l:#ECEFF1;
+  --preto:#1A1A1A;--branco:#fff;
+  --red:#C62828;--red-l:#FFEBEE;
+  --font:'Sora',sans-serif;
+}
+body{font-family:var(--font);background:#f0f2f5;color:var(--preto);min-height:100vh}
+
+/* APP SHELL */
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:#fff;position:relative;overflow:hidden}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+
+/* ── LOGIN ── */
+.login{background:linear-gradient(160deg,#1B5E20,#2E7D32);justify-content:center;align-items:center;padding:40px 28px}
+.login-logo{text-align:center;margin-bottom:40px}
+.login-logo .icon{font-size:52px;display:block;margin-bottom:8px}
+.login-logo h1{font-size:32px;font-weight:700;color:#fff}
+.login-logo p{font-size:14px;color:rgba(255,255,255,0.7);margin-top:4px}
+.login-card{background:#fff;border-radius:20px;padding:28px;width:100%}
+.login-card h2{font-size:18px;font-weight:600;margin-bottom:20px;color:var(--preto)}
+.field{margin-bottom:16px}
+.field label{font-size:12px;font-weight:500;color:var(--cinza);display:block;margin-bottom:6px}
+.field input{width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:var(--font);outline:none;transition:.2s}
+.field input:focus{border-color:var(--verde)}
+.btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--font);border:none;cursor:pointer;transition:.2s}
+.btn-green{background:var(--verde);color:#fff}
+.btn-green:hover{background:var(--verde-m)}
+.btn-outline{background:transparent;border:1.5px solid var(--verde);color:var(--verde);margin-top:10px}
+.login-hint{font-size:12px;color:var(--cinza);text-align:center;margin-top:14px}
+
+/* ── TOPBAR ── */
+.topbar{background:#fff;border-bottom:1px solid #eee;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-logo{font-size:16px;font-weight:700;color:var(--verde);display:flex;align-items:center;gap:6px}
+.topbar-back{font-size:20px;cursor:pointer;color:var(--cinza);padding:4px}
+.topbar-title{font-size:15px;font-weight:600}
+.topbar-action{font-size:13px;color:var(--verde);font-weight:600;cursor:pointer}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;background:var(--verde-cl);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:16px;padding-bottom:80px}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:8px 0 14px;z-index:10}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:.4;transition:.2s;padding:2px 16px}
+.nav-item.active{opacity:1}
+.nav-icon{font-size:20px}
+.nav-label{font-size:9px;font-weight:500;color:var(--preto)}
+.nav-item.active .nav-label{color:var(--verde)}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid #eee;border-radius:14px;padding:16px;margin-bottom:12px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:600;color:var(--cinza)}
+.card-link{font-size:12px;color:var(--verde);font-weight:500;cursor:pointer}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:var(--verde-cl);border-radius:12px;padding:14px;text-align:center}
+.stat-card.green{background:var(--verde);color:#fff}
+.stat-num{font-size:28px;font-weight:700;color:var(--verde)}
+.stat-card.green .stat-num{color:var(--amarelo)}
+.stat-lbl{font-size:11px;color:var(--cinza);margin-top:3px}
+.stat-card.green .stat-lbl{color:rgba(255,255,255,0.8)}
+
+/* ── ALERT BOX ── */
+.alert{border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start}
+.alert.green{background:var(--verde-cl);border:1px solid var(--verde-md)}
+.alert.yellow{background:#FFF8E1;border:1px solid #FFE082}
+.alert.red{background:var(--red-l);border:1px solid #EF9A9A}
+.alert-icon{font-size:18px;flex-shrink:0}
+.alert-text h4{font-size:13px;font-weight:600;color:var(--preto)}
+.alert-text p{font-size:11px;color:var(--cinza);margin-top:2px;line-height:1.4}
+
+/* ── ANIMAL LIST ── */
+.animal-item{background:#fff;border:1px solid #eee;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;transition:.2s}
+.animal-item:hover{border-color:var(--verde-md)}
+.animal-avatar{width:40px;height:40px;border-radius:10px;background:var(--verde-cl);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.animal-info{flex:1}
+.animal-name{font-size:14px;font-weight:600}
+.animal-sub{font-size:11px;color:var(--cinza);margin-top:2px}
+.animal-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:500}
+.badge-green{background:var(--verde-cl);color:var(--verde)}
+.badge-yellow{background:#FFF8E1;color:#F57F17}
+.badge-red{background:var(--red-l);color:var(--red)}
+.badge-gray{background:var(--cinza-l);color:var(--cinza)}
+
+/* ── FORM ── */
+.form-section{font-size:12px;font-weight:600;color:var(--cinza);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px}
+.form-field{margin-bottom:14px}
+.form-field label{font-size:12px;font-weight:500;color:var(--cinza);display:block;margin-bottom:6px}
+.form-field input,.form-field select,.form-field textarea{width:100%;padding:11px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:var(--font);outline:none;transition:.2s;background:#fff}
+.form-field input:focus,.form-field select:focus{border-color:var(--verde)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.checkbox-group{display:flex;flex-direction:column;gap:8px}
+.checkbox-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;cursor:pointer;transition:.2s}
+.checkbox-item.selected{border-color:var(--verde);background:var(--verde-cl)}
+.checkbox-item input{width:16px;height:16px;accent-color:var(--verde)}
+.checkbox-item label{font-size:13px;cursor:pointer}
+
+/* ── PROGRESS ── */
+.progress-bar{background:#eee;border-radius:100px;height:8px;overflow:hidden;margin-top:8px}
+.progress-fill{background:var(--verde);height:100%;border-radius:100px;transition:width .4s}
+
+/* ── RESULTADO ── */
+.result-big{text-align:center;padding:24px 0}
+.result-circle{width:120px;height:120px;border-radius:50%;background:var(--verde-cl);border:4px solid var(--verde);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 16px}
+.result-pct{font-size:32px;font-weight:700;color:var(--verde)}
+.result-label{font-size:10px;color:var(--cinza)}
+.result-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.result-item{text-align:center;background:var(--cinza-l);border-radius:10px;padding:12px 8px}
+.result-num{font-size:20px;font-weight:700;color:var(--preto)}
+.result-lbl{font-size:10px;color:var(--cinza);margin-top:2px}
+
+/* ── SECTION TITLE ── */
+.section-title{font-size:18px;font-weight:700;margin-bottom:4px}
+.section-sub{font-size:13px;color:var(--cinza);margin-bottom:16px}
+
+/* ── SUCCESS ── */
+.success-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center}
+.success-icon{font-size:72px;margin-bottom:20px}
+.success-screen h2{font-size:22px;font-weight:700;margin-bottom:10px}
+.success-screen p{font-size:14px;color:var(--cinza);margin-bottom:28px;line-height:1.6}
+
+/* ── TAGS ── */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--cinza-l);color:var(--cinza)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ TELA 1: LOGIN ══ -->
+<div class="screen active" id="screen-login">
+  <div class="login">
+    <div class="login-logo">
+      <span class="icon">🐄</span>
+      <h1>VetSync</h1>
+      <p>Gestão de reprodução bovina</p>
+    </div>
+    <div class="login-card">
+      <h2>Entrar na conta</h2>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" value="joao@vetsync.com.br" placeholder="seu@email.com"/>
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" value="123456" placeholder="••••••"/>
+      </div>
+      <button class="btn btn-green" onclick="goTo('screen-dashboard')">Entrar</button>
+      <button class="btn btn-outline" onclick="goTo('screen-dashboard')">🎯 Acessar demo</button>
+      <p class="login-hint">Demo: clique em "Acessar demo" para explorar</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TELA 2: DASHBOARD ══ -->
+<div class="screen" id="screen-dashboard">
+  <div class="topbar">
+    <div class="topbar-logo">🐄 VetSync</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:12px;color:var(--cinza)">Fazenda Bela Vista</span>
+      <div class="topbar-avatar" onclick="goTo('screen-login')">JO</div>
+    </div>
+  </div>
+  <div class="content">
+    <div style="margin-bottom:16px">
+      <p style="font-size:13px;color:var(--cinza)">Bom dia, Dr. João 👋</p>
+      <h2 style="font-size:20px;font-weight:700">Visão Geral</h2>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card green">
+        <div class="stat-num">68%</div>
+        <div class="stat-lbl">Taxa de Prenhez</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--preto)">142</div>
+        <div class="stat-lbl">Fêmeas ativas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--amarelo)">8</div>
+        <div class="stat-lbl">Aguardando DG</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--verde)">3</div>
+        <div class="stat-lbl">Protocolos ativos</div>
+      </div>
+    </div>
+
+    <div class="alert green">
+      <span class="alert-icon">✅</span>
+      <div class="alert-text">
+        <h4>Protocolo concluído — Lote A</h4>
+        <p>12 fêmeas inseminadas ontem. Diagnóstico em 30 dias.</p>
+      </div>
+    </div>
+
+    <div class="alert yellow">
+      <span class="alert-icon">⏰</span>
+      <div class="alert-text">
+        <h4>Diagnóstico de gestação amanhã</h4>
+        <p>8 fêmeas do Lote B aguardam DG. Protocolo iniciado em 28/04.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Últimas inseminações</span>
+        <span class="card-link" onclick="goTo('screen-animais')">Ver todas →</span>
+      </div>
+      <div class="animal-item" onclick="goTo('screen-animal-detalhe')">
+        <div class="animal-avatar">🐄</div>
+        <div class="animal-info">
+          <div class="animal-name">Vaca #247 — Mimosa</div>
+          <div class="animal-sub">Nelore · IATF em 04/05/2026</div>
+        </div>
+        <span class="animal-badge badge-yellow">Aguardando DG</span>
+      </div>
+      <div class="animal-item" onclick="goTo('screen-animal-detalhe')">
+        <div class="animal-avatar">🐄</div>
+        <div class="animal-info">
+          <div class="animal-name">Vaca #198 — Princesa</div>
+          <div class="animal-sub">Nelore · IATF em 02/05/2026</div>
+        </div>
+        <span class="animal-badge badge-green">Gestante ✓</span>
+      </div>
+      <div class="animal-item" onclick="goTo('screen-animal-detalhe')">
+        <div class="animal-avatar">🐄</div>
+        <div class="animal-info">
+          <div class="animal-name">Vaca #312 — Boneca</div>
+          <div class="animal-sub">Nelore · IATF em 01/05/2026</div>
+        </div>
+        <span class="animal-badge badge-red">Repetição</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Progresso do ciclo atual</span>
+      </div>
+      <div style="font-size:12px;color:var(--cinza);margin-bottom:4px">Lote B — 8 fêmeas</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+      <div style="font-size:11px;color:var(--cinza);margin-top:6px">Dia 22 de 34 do protocolo</div>
+    </div>
+
+    <button class="btn btn-green" onclick="goTo('screen-novo-protocolo')" style="margin-top:4px">
+      + Novo Protocolo IATF
+    </button>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="goTo('screen-dashboard')">
+      <span class="nav-icon">🏠</span><span class="nav-label">Início</span>
+    </div>
+    <div class="nav-item" onclick="goTo('screen-animais')">
+      <span class="nav-icon">🐄</span><span class="nav-label">Animais</span>
+    </div>
+    <div class="nav-item" onclick="goTo('screen-novo-protocolo')">
+      <span class="nav-icon">➕</span><span class="nav-label">Registrar</span>
+    </div>
+    <div class="nav-item" onclick="goTo('screen-resultado')">
+      <span class="nav-icon">📊</span><span class="nav-label">Relatórios</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TELA 3: ANIMAIS ══ -->
+<div class="screen" id="screen-animais">
+  <div class="topbar">
+    <span class="topbar-back" onclick="goTo('screen-dashboard')">←</span>
+    <span class="topbar-title">Rebanho</span>
+    <span class="topbar-action" onclick="goTo('screen-novo-animal')">+ Animal</span>
+  </div>
+  <div class="content">
+    <input style="width:100%;padding:10px 14px;border:1.5px solid #eee;border-radius:10px;font-size:14px;font-family:var(--font);margin-bottom:14px;outline:none" placeholder="🔍  Buscar por nome ou número..."/>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">
+      <span style="flex-shrink:0;font-size:12px;padding:5px 14px;border-radius:20px;background:var(--verde);color:#fff;cursor:pointer">Todas</span>
+      <span style="flex-shrink:0;font-size:12px;padding:5px 14px;border-radius:20px;background:var(--cinza-l);color:var(--cinza);cursor:pointer">Gestantes</span>
+      <span style="flex-shrink:0;font-size:12px;padding:5px 14px;border-radius:20px;background:var(--cinza-l);color:var(--cinza);cursor:pointer">Aguardando DG</span>
+      <span style="flex-shrink:0;font-size:12px;padding:5px 14px;border-radius:20px;background:var(--cinza-l);color:var(--cinza);cursor:pointer">Repetição</span>
+    </div>
+
+    <div id="lista-animais"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('screen-dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></div>
+    <div class="nav-item active" onclick="goTo('screen-animais')"><span class="nav-icon">🐄</span><span class="nav-label">Animais</span></div>
+    <div class="nav-item" onclick="goTo('screen-novo-protocolo')"><span class="nav-icon">➕</span><span class="nav-label">Registrar</span></div>
+    <div class="nav-item" onclick="goTo('screen-resultado')"><span class="nav-icon">📊</span><span class="nav-label">Relatórios</span></div>
+  </div>
+</div>
+
+<!-- ══ TELA 4: DETALHE ANIMAL ══ -->
+<div class="screen" id="screen-animal-detalhe">
+  <div class="topbar">
+    <span class="topbar-back" onclick="goTo('screen-animais')">←</span>
+    <span class="topbar-title">Vaca #247 — Mimosa</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="card" style="text-align:center;padding:24px">
+      <div style="font-size:52px;margin-bottom:8px">🐄</div>
+      <h2 style="font-size:20px;font-weight:700">Mimosa</h2>
+      <p style="font-size:13px;color:var(--cinza)">Vaca #247 · Nelore · 4 anos</p>
+      <div style="margin-top:12px">
+        <span class="animal-badge badge-yellow" style="font-size:13px;padding:5px 16px">Aguardando Diagnóstico</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Último protocolo</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div style="font-size:11px;color:var(--cinza)">Data IATF</div><div style="font-size:14px;font-weight:600">04/05/2026</div></div>
+        <div><div style="font-size:11px;color:var(--cinza)">Touro</div><div style="font-size:14px;font-weight:600">Diamante TE</div></div>
+        <div><div style="font-size:11px;color:var(--cinza)">Protocolo</div><div style="font-size:14px;font-weight:600">P4 + BE</div></div>
+        <div><div style="font-size:11px;color:var(--cinza)">DG previsto</div><div style="font-size:14px;font-weight:600">03/06/2026</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Histórico reprodutivo</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--verde-cl);border-radius:10px">
+          <div><div style="font-size:12px;font-weight:600">Jan/2026</div><div style="font-size:11px;color:var(--cinza)">Touro Brilhante</div></div>
+          <span class="animal-badge badge-green">Gestante ✓</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--red-l);border-radius:10px">
+          <div><div style="font-size:12px;font-weight:600">Set/2025</div><div style="font-size:11px;color:var(--cinza)">Touro Diamante</div></div>
+          <span class="animal-badge badge-red">Repetição</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--verde-cl);border-radius:10px">
+          <div><div style="font-size:12px;font-weight:600">Mai/2025</div><div style="font-size:11px;color:var(--cinza)">Touro Brilhante</div></div>
+          <span class="animal-badge badge-green">Gestante ✓</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-green" onclick="goTo('screen-registrar-dg')">Registrar Diagnóstico de Gestação</button>
+  </div>
+</div>
+
+<!-- ══ TELA 5: NOVO PROTOCOLO ══ -->
+<div class="screen" id="screen-novo-protocolo">
+  <div class="topbar">
+    <span class="topbar-back" onclick="goTo('screen-dashboard')">←</span>
+    <span class="topbar-title">Novo Protocolo IATF</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <p class="form-section">Dados da Fazenda</p>
+    <div class="form-field">
+      <label>Fazenda</label>
+      <select><option>Fazenda Bela Vista</option><option>Fazenda São João</option></select>
+    </div>
+    <div class="form-field">
+      <label>Veterinário responsável</label>
+      <input type="text" value="Dr. João Otávio Pereira"/>
+    </div>
+
+    <p class="form-section">Protocolo</p>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Data de início</label>
+        <input type="date" id="data-inicio"/>
+      </div>
+      <div class="form-field">
+        <label>Protocolo</label>
+        <select>
+          <option>P4 + BE (21 dias)</option>
+          <option>Ovsynch (10 dias)</option>
+          <option>Crestar</option>
+          <option>Personalizado</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Touro / Sêmen</label>
+      <select>
+        <option>Diamante TE — Nelore</option>
+        <option>Brilhante FIV — Nelore</option>
+        <option>Ouro Negro — Angus</option>
+        <option>+ Adicionar touro</option>
+      </select>
+    </div>
+
+    <p class="form-section">Selecionar Fêmeas</p>
+    <div style="font-size:13px;color:var(--cinza);margin-bottom:10px">Selecione as vacas para este protocolo:</div>
+    <div class="checkbox-group" id="lista-selecao"></div>
+
+    <div style="background:var(--verde-cl);border-radius:10px;padding:12px;margin-top:14px;font-size:13px;color:var(--verde)">
+      <strong id="count-selecionadas">0 fêmeas selecionadas</strong> para este protocolo
+    </div>
+
+    <button class="btn btn-green" style="margin-top:16px" onclick="salvarProtocolo()">
+      ✓ Registrar Protocolo
+    </button>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('screen-dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></div>
+    <div class="nav-item" onclick="goTo('screen-animais')"><span class="nav-icon">🐄</span><span class="nav-label">Animais</span></div>
+    <div class="nav-item active"><span class="nav-icon">➕</span><span class="nav-label">Registrar</span></div>
+    <div class="nav-item" onclick="goTo('screen-resultado')"><span class="nav-icon">📊</span><span class="nav-label">Relatórios</span></div>
+  </div>
+</div>
+
+<!-- ══ TELA 6: REGISTRAR DG ══ -->
+<div class="screen" id="screen-registrar-dg">
+  <div class="topbar">
+    <span class="topbar-back" onclick="goTo('screen-animal-detalhe')">←</span>
+    <span class="topbar-title">Diagnóstico de Gestação</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="alert yellow">
+      <span class="alert-icon">🔬</span>
+      <div class="alert-text">
+        <h4>Vaca #247 — Mimosa</h4>
+        <p>IATF realizada em 04/05/2026 com Diamante TE</p>
+      </div>
+    </div>
+
+    <p class="form-section">Resultado do DG</p>
+    <div class="checkbox-group">
+      <div class="checkbox-item" id="dg-gestante" onclick="selectDG('gestante')">
+        <input type="radio" name="dg" id="r1"/>
+        <label for="r1">✅ Gestante — Prenha confirmada</label>
+      </div>
+      <div class="checkbox-item" id="dg-repeticao" onclick="selectDG('repeticao')">
+        <input type="radio" name="dg" id="r2"/>
+        <label for="r2">🔄 Repetição — Não concebeu</label>
+      </div>
+      <div class="checkbox-item" id="dg-perda" onclick="selectDG('perda')">
+        <input type="radio" name="dg" id="r3"/>
+        <label for="r3">⚠️ Perda embrionária</label>
+      </div>
+    </div>
+
+    <div class="form-field" style="margin-top:16px">
+      <label>Data do diagnóstico</label>
+      <input type="date"/>
+    </div>
+    <div class="form-field">
+      <label>Observações (opcional)</label>
+      <textarea style="resize:none;height:80px" placeholder="Anotações sobre o animal..."></textarea>
+    </div>
+
+    <button class="btn btn-green" onclick="salvarDG()">Salvar Diagnóstico</button>
+  </div>
+</div>
+
+<!-- ══ TELA 7: RESULTADO/RELATÓRIO ══ -->
+<div class="screen" id="screen-resultado">
+  <div class="topbar">
+    <span class="topbar-back" onclick="goTo('screen-dashboard')">←</span>
+    <span class="topbar-title">Relatório de Prenhez</span>
+    <span class="topbar-action">📄 PDF</span>
+  </div>
+  <div class="content">
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <select style="flex:1;padding:9px 12px;border:1.5px solid #eee;border-radius:10px;font-size:13px;font-family:var(--font);background:#fff">
+        <option>Lote A — Mai/2026</option>
+        <option>Lote B — Abr/2026</option>
+        <option>Lote C — Mar/2026</option>
+      </select>
+    </div>
+
+    <div class="result-big">
+      <div class="result-circle">
+        <div class="result-pct">68%</div>
+        <div class="result-label">Prenhez</div>
+      </div>
+      <div style="font-size:14px;color:var(--cinza)">Lote A — Maio 2026</div>
+      <div style="font-size:12px;color:var(--verde);margin-top:4px;font-weight:600">▲ +8% vs. ciclo anterior</div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-num">25</div>
+        <div class="result-lbl">Inseminadas</div>
+      </div>
+      <div class="result-item" style="background:var(--verde-cl)">
+        <div class="result-num" style="color:var(--verde)">17</div>
+        <div class="result-lbl">Gestantes</div>
+      </div>
+      <div class="result-item" style="background:var(--red-l)">
+        <div class="result-num" style="color:var(--red)">8</div>
+        <div class="result-lbl">Repetição</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><span class="card-title">Análise por touro</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span style="font-weight:500">Diamante TE</span>
+            <span style="color:var(--verde);font-weight:600">75% prenhez</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span style="font-weight:500">Brilhante FIV</span>
+            <span style="color:var(--verde);font-weight:600">62% prenhez</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span style="font-weight:500">Ouro Negro</span>
+            <span style="color:var(--amarelo);font-weight:600">58% prenhez</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:58%;background:var(--amarelo)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert green" style="margin-top:4px">
+      <span class="alert-icon">💡</span>
+      <div class="alert-text">
+        <h4>Recomendação VetSync</h4>
+        <p>Priorize o touro Diamante TE no próximo ciclo. Taxa 13% acima da média do lote.</p>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goTo('screen-dashboard')"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></div>
+    <div class="nav-item" onclick="goTo('screen-animais')"><span class="nav-icon">🐄</span><span class="nav-label">Animais</span></div>
+    <div class="nav-item" onclick="goTo('screen-novo-protocolo')"><span class="nav-icon">➕</span><span class="nav-label">Registrar</span></div>
+    <div class="nav-item active" onclick="goTo('screen-resultado')"><span class="nav-icon">📊</span><span class="nav-label">Relatórios</span></div>
+  </div>
+</div>
+
+<!-- ══ TELA 8: SUCESSO ══ -->
+<div class="screen" id="screen-sucesso">
+  <div class="topbar">
+    <span></span>
+    <span class="topbar-title">VetSync</span>
+    <span></span>
+  </div>
+  <div class="success-screen">
+    <div class="success-icon">✅</div>
+    <h2 id="sucesso-titulo">Protocolo registrado!</h2>
+    <p id="sucesso-texto">As fêmeas foram adicionadas ao protocolo e o produtor já foi notificado.</p>
+    <button class="btn btn-green" style="max-width:280px" onclick="goTo('screen-dashboard')">Voltar ao início</button>
+    <button class="btn btn-outline" style="max-width:280px;margin-top:10px;border:1.5px solid var(--verde);color:var(--verde)" onclick="goTo('screen-animais')">Ver animais</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ── DADOS DEMO ──
+const animais = [
+  {id:'247',nome:'Mimosa',raca:'Nelore',idade:'4 anos',status:'dg',touro:'Diamante TE',data:'04/05/2026'},
+  {id:'198',nome:'Princesa',raca:'Nelore',idade:'5 anos',status:'gestante',touro:'Brilhante FIV',data:'02/05/2026'},
+  {id:'312',nome:'Boneca',raca:'Nelore',idade:'3 anos',status:'repeticao',touro:'Diamante TE',data:'01/05/2026'},
+  {id:'089',nome:'Estrela',raca:'Nelore',idade:'6 anos',status:'gestante',touro:'Ouro Negro',data:'28/04/2026'},
+  {id:'156',nome:'Flor',raca:'Nelore x Angus',idade:'4 anos',status:'dg',touro:'Diamante TE',data:'26/04/2026'},
+  {id:'421',nome:'Beleza',raca:'Nelore',idade:'3 anos',status:'gestante',touro:'Brilhante FIV',data:'25/04/2026'},
+  {id:'334',nome:'Caipira',raca:'Nelore',idade:'5 anos',status:'repeticao',touro:'Ouro Negro',data:'20/04/2026'},
+  {id:'502',nome:'Serena',raca:'Nelore',idade:'4 anos',status:'gestante',touro:'Diamante TE',data:'18/04/2026'},
+]
+
+const statusMap = {
+  gestante: {label:'Gestante ✓', cls:'badge-green'},
+  dg: {label:'Aguardando DG', cls:'badge-yellow'},
+  repeticao: {label:'Repetição', cls:'badge-red'},
+  vazia: {label:'Vazia', cls:'badge-gray'},
+}
+
+// ── NAVEGAÇÃO ──
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  window.scrollTo(0,0)
+  if(id === 'screen-animais') renderAnimais()
+  if(id === 'screen-novo-protocolo') renderSelecao()
+  if(id === 'screen-novo-protocolo') {
+    document.getElementById('data-inicio').valueAsDate = new Date()
+  }
+}
+
+// ── LISTA ANIMAIS ──
+function renderAnimais() {
+  const el = document.getElementById('lista-animais')
+  el.innerHTML = animais.map(a => {
+    const s = statusMap[a.status]
+    return `<div class="animal-item" onclick="goTo('screen-animal-detalhe')">
+      <div class="animal-avatar">🐄</div>
+      <div class="animal-info">
+        <div class="animal-name">Vaca #${a.id} — ${a.nome}</div>
+        <div class="animal-sub">${a.raca} · IATF em ${a.data}</div>
+      </div>
+      <span class="animal-badge ${s.cls}">${s.label}</span>
+    </div>`
+  }).join('')
+}
+
+// ── SELEÇÃO DE FÊMEAS ──
+let selecionadas = new Set()
+function renderSelecao() {
+  const el = document.getElementById('lista-selecao')
+  el.innerHTML = animais.slice(0,6).map(a => `
+    <div class="checkbox-item ${selecionadas.has(a.id)?'selected':''}" onclick="toggleVaca('${a.id}',this)">
+      <input type="checkbox" ${selecionadas.has(a.id)?'checked':''} onchange="toggleVaca('${a.id}',this.closest('.checkbox-item'))"/>
+      <label>Vaca #${a.id} — ${a.nome} (${a.raca})</label>
+    </div>
+  `).join('')
+  updateCount()
+}
+
+function toggleVaca(id, el) {
+  if(selecionadas.has(id)) {
+    selecionadas.delete(id)
+    el.classList.remove('selected')
+    el.querySelector('input').checked = false
+  } else {
+    selecionadas.add(id)
+    el.classList.add('selected')
+    el.querySelector('input').checked = true
+  }
+  updateCount()
+}
+
+function updateCount() {
+  document.getElementById('count-selecionadas').textContent = selecionadas.size + ' fêmeas selecionadas'
+}
+
+function salvarProtocolo() {
+  if(selecionadas.size === 0) {
+    alert('Selecione pelo menos uma fêmea.')
+    return
+  }
+  document.getElementById('sucesso-titulo').textContent = 'Protocolo registrado!'
+  document.getElementById('sucesso-texto').textContent = `${selecionadas.size} fêmeas adicionadas ao protocolo. O produtor foi notificado pelo WhatsApp.`
+  selecionadas.clear()
+  goTo('screen-sucesso')
+}
+
+// ── DG ──
+function selectDG(tipo) {
+  document.querySelectorAll('.checkbox-item[id^="dg-"]').forEach(el => el.classList.remove('selected'))
+  document.getElementById('dg-'+tipo).classList.add('selected')
+}
+
+function salvarDG() {
+  const selecionado = document.querySelector('.checkbox-item[id^="dg-"].selected')
+  if(!selecionado) { alert('Selecione o resultado do diagnóstico.'); return }
+  const tipo = selecionado.id.replace('dg-','')
+  const msgs = {
+    gestante: 'Diagnóstico salvo! Vaca #247 confirmada gestante. ✅',
+    repeticao: 'Diagnóstico salvo. Vaca marcada para novo protocolo. 🔄',
+    perda: 'Diagnóstico salvo. Perda embrionária registrada. ⚠️'
+  }
+  document.getElementById('sucesso-titulo').textContent = 'Diagnóstico registrado!'
+  document.getElementById('sucesso-texto').textContent = msgs[tipo]
+  goTo('screen-sucesso')
+}
+
+// Init
+document.getElementById('data-inicio') && (document.getElementById('data-inicio').valueAsDate = new Date())
+</script>
+</body>
+</html>
