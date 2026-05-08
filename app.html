@@ -154,6 +154,13 @@ body{font-family:var(--font);background:#f0f2f5;color:var(--preto);min-height:10
 .dg-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0}
 .dg-item:last-child{border-bottom:none}
 </style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#1B5E20"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="VetSync"/>
+<link rel="apple-touch-icon" href="/icon-192.png"/>
 </head>
 <body>
 <div class="app">
@@ -824,6 +831,15 @@ function excluirAnimal(id, num, nome) {
 
 // ── INIT ──
 initData()
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log('SW registrado'))
+      .catch(e => console.log('SW erro:', e))
+  })
+}
 </script>
 </body>
 </html>
