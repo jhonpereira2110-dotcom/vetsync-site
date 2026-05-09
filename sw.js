@@ -1,4 +1,4 @@
-const CACHE = 'vetsync-v1'
+const CACHE = 'vetsync-v3'
 const FILES = ['/app.html', '/manifest.json']
 
 self.addEventListener('install', e => {
@@ -14,7 +14,14 @@ self.addEventListener('activate', e => {
 })
 
 self.addEventListener('fetch', e => {
+  // Sempre busca versao nova da rede, usa cache como fallback
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/app.html')))
+    fetch(e.request)
+      .then(r => {
+        const clone = r.clone()
+        caches.open(CACHE).then(c => c.put(e.request, clone))
+        return r
+      })
+      .catch(() => caches.match(e.request))
   )
 })
