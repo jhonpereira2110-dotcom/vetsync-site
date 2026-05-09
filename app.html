@@ -215,6 +215,7 @@ body{font-family:var(--font);background:#f0f2f5;color:var(--preto);min-height:10
     </div>
     <button class="btn btn-green" onclick="goTo('s-novo-protocolo')">+ Novo Protocolo IATF</button>
     <button class="btn btn-outline" style="margin-top:10px" onclick="goTo('s-novo-animal')">+ Cadastrar Animal</button>
+    <button class="btn btn-outline" style="margin-top:10px;border-color:#5D4037;color:#5D4037" onclick="goTo('s-touros')">🐂 Gerenciar Touros</button>
   </div>
   <div class="bottom-nav">
     <div class="nav-item active" onclick="goTo('s-dash')"><span class="nav-icon">🏠</span><span class="nav-label">Início</span></div>
@@ -375,6 +376,53 @@ body{font-family:var(--font);background:#f0f2f5;color:var(--preto);min-height:10
   </div>
 </div>
 
+<!-- TOUROS -->
+<div class="screen" id="s-touros">
+  <div class="topbar">
+    <span class="topbar-back" onclick="goTo('s-dash')">&#8592;</span>
+    <span class="topbar-title">Touros / Semen</span>
+    <span class="topbar-action" onclick="goTo('s-novo-touro')">+ Touro</span>
+  </div>
+  <div class="content">
+    <div id="lista-touros"></div>
+  </div>
+</div>
+
+<!-- NOVO TOURO -->
+<div class="screen" id="s-novo-touro">
+  <div class="topbar">
+    <span class="topbar-back" onclick="goTo('s-touros')">&#8592;</span>
+    <span class="topbar-title">Cadastrar Touro</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <p class="fsec">Identificacao</p>
+    <div class="fgroup"><label>Nome do Touro / Semen *</label><input type="text" id="nt-nome" placeholder="Ex: Diamante TE"/></div>
+    <div class="frow">
+      <div class="fgroup"><label>Raca *</label>
+        <select id="nt-raca">
+          <option>Nelore</option><option>Angus</option><option>Brahman</option>
+          <option>Girolando</option><option>Senepol</option><option>Outra</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>Tipo</label>
+        <select id="nt-tipo">
+          <option>Semen convencional</option><option>Semen sexado</option>
+          <option>TE (Embriao)</option><option>FIV</option><option>Monta natural</option>
+        </select>
+      </div>
+    </div>
+    <div class="fgroup"><label>Registro / RGSN</label><input type="text" id="nt-registro" placeholder="Ex: 123456-A"/></div>
+    <div class="fgroup"><label>Procedencia / Central</label><input type="text" id="nt-central" placeholder="Ex: CRV Lagoa"/></div>
+    <div class="frow">
+      <div class="fgroup"><label>Partida / Lote</label><input type="text" id="nt-partida" placeholder="Ex: LOT-2024"/></div>
+      <div class="fgroup"><label>Doses disponiveis</label><input type="number" id="nt-doses" placeholder="10" min="0"/></div>
+    </div>
+    <div class="fgroup"><label>Observacoes</label><textarea id="nt-obs" style="resize:none;height:70px" placeholder="DEP, caracteristicas..."></textarea></div>
+    <button class="btn btn-green" onclick="salvarTouro()">Cadastrar Touro</button>
+  </div>
+</div>
+
 <!-- SUCESSO -->
 <div class="screen" id="s-sucesso">
   <div class="topbar"><span></span><span class="topbar-title">VetSync</span><span></span></div>
@@ -447,6 +495,8 @@ function goTo(id) {
   if (id === 's-animais') renderAnimais()
   if (id === 's-novo-protocolo') renderSelecaoFemeas()
   if (id === 's-relatorio') renderRelatorio()
+  if (id === 's-touros') renderTouros()
+  if (id === 's-novo-protocolo') renderSelectTouros()
   if (id === 's-novo-protocolo') {
     document.getElementById('np-data').valueAsDate = new Date()
   }
@@ -696,7 +746,8 @@ function salvarProtocolo() {
   if (femeasSel.size === 0) { alert('Selecione pelo menos uma fêmea.'); return }
   const data = document.getElementById('np-data').value
   if (!data) { alert('Informe a data da IATF.'); return }
-  const touro = document.getElementById('np-touro').value
+  const npSel = document.getElementById('np-touro')
+  const touro = npSel.options[npSel.selectedIndex]?.text || npSel.value
   const protocolo = document.getElementById('np-protocolo').value
   const vet = document.getElementById('np-vet').value
   const obs = document.getElementById('np-obs').value
