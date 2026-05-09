@@ -880,6 +880,73 @@ function excluirAnimal(id, num, nome) {
   goTo('s-animais')
 }
 
+
+// == TOUROS ==
+function getTouros() {
+  const saved = DB.get('touros')
+  if (saved && saved.length > 0) return saved
+  const defaults = [
+    {id:'t1',nome:'Diamante TE',raca:'Nelore',tipo:'TE Embriao',registro:'',central:'CRV Lagoa',partida:'',doses:20,obs:''},
+    {id:'t2',nome:'Brilhante FIV',raca:'Nelore',tipo:'FIV',registro:'',central:'Alta Genetics',partida:'',doses:15,obs:''},
+    {id:'t3',nome:'Ouro Negro',raca:'Angus',tipo:'Semen convencional',registro:'',central:'Semex',partida:'',doses:10,obs:''},
+  ]
+  saveTouros(defaults)
+  return defaults
+}
+function saveTouros(t) { DB.set('touros', t) }
+
+function renderTouros() {
+  const touros = getTouros()
+  const el = document.getElementById('lista-touros')
+  if (!el) return
+  if (touros.length === 0) {
+    el.innerHTML = '<div class="empty"><p>Nenhum touro. Clique + Touro.</p></div>'
+    return
+  }
+  el.innerHTML = touros.map(t => '<div class="animal-item"><div class="animal-avatar" style="background:#EFEBE9;font-size:22px">&#128002;</div><div class="animal-info"><div class="animal-name">'+t.nome+'</div><div class="animal-sub">'+t.raca+' &middot; '+t.tipo+' &middot; '+t.doses+' doses</div></div><button style="background:var(--red-l);border:none;color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer" onclick="excluirTouro(''+t.id+'',''+t.nome+'')">&#128465;</button></div>').join('')
+}
+
+function renderSelectTouros() {
+  const sel = document.getElementById('np-touro')
+  if (!sel) return
+  sel.innerHTML = getTouros().map(t => '<option value="'+t.id+'">'+t.nome+' - '+t.raca+'</option>').join('')
+}
+
+function salvarTouro() {
+  const nomeEl = document.getElementById('nt-nome')
+  if (!nomeEl) return
+  const nome = nomeEl.value.trim()
+  if (!nome) { alert('Informe o nome do touro.'); return }
+  const touros = getTouros()
+  touros.push({
+    id: uid(), nome: nome,
+    raca: document.getElementById('nt-raca').value,
+    tipo: document.getElementById('nt-tipo').value,
+    registro: document.getElementById('nt-registro').value || '',
+    central: document.getElementById('nt-central').value || '',
+    partida: document.getElementById('nt-partida').value || '',
+    doses: parseInt(document.getElementById('nt-doses').value) || 0,
+    obs: document.getElementById('nt-obs').value || ''
+  })
+  saveTouros(touros)
+  nomeEl.value = ''
+  document.getElementById('nt-registro').value = ''
+  document.getElementById('nt-central').value = ''
+  document.getElementById('nt-partida').value = ''
+  document.getElementById('nt-doses').value = ''
+  document.getElementById('nt-obs').value = ''
+  document.getElementById('suc-icon').textContent = '&#128002;'
+  document.getElementById('suc-titulo').textContent = 'Touro cadastrado!'
+  document.getElementById('suc-texto').textContent = nome + ' adicionado com sucesso!'
+  goTo('s-sucesso')
+}
+
+function excluirTouro(id, nome) {
+  if (!confirm('Excluir ' + nome + '?')) return
+  saveTouros(getTouros().filter(t => t.id !== id))
+  renderTouros()
+}
+
 // ── INIT ──
 initData()
 </script>
